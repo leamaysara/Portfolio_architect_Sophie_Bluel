@@ -1,19 +1,28 @@
-const gallery = document.getElementById('gallery');
+
 
 //Fetch to retrieve data//
 fetch('http://localhost:5678/api/works')
   .then(response => response.json())
   .then(data => {
-    console.log(gallery)
-    //Process the data here//
+    const gallery = document.getElementById('gallery');
+    console.log(data)
+
+    data.forEach ((element) => {
+      console.log(element)
+      const figure = document.createElement('figure');
+      const image = document.createElement('img');
+      const figcaption = document.createElement('figcaption');
+
+      image.src = element.imageUrl; 
+      image.alt = element.title;
+
+      figcaption.textContent = element.title;
+      
+      figure.appendChild(image);
+      figure.appendChild(figcaption);
+
+      gallery.appendChild(figure);
+    })
   })
   .catch(error => console.error('Erreur :', error));
 
-  const galerie = document.getElementById('galerie');
-
-//Add works to the gallery//
-data.travaux.forEach(travail => {
-  const li = document.createElement('li');
-  li.textContent = travail.nom;
-  galerie.appendChild(li);
-});
