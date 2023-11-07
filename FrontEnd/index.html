@@ -69,18 +69,18 @@
 			</form>
 		</section>
 		<!--Modal to delete images visible in login-->
-		<section class="modale-delete hidden">
-				<i class="modale-close-btn fa-solid fa-xmark"></i>
+		<section class="modal-delete hidden">
+				<i class="modal-close-btn fa-solid fa-xmark"></i>
 				<h3>Galerie photo</h3>
-				<div class="modale-img"><!--Dynamic gallery image--></div>
-				<div class ="modale-border"></div>
-				<button class="modale-add-btn" type="submit">Ajouter une photo</button>
+				<div class="modal-img"><!--Dynamic gallery image--></div>
+				<div class ="modal-border"></div>
+				<button class="modal-add-btn" type="submit">Ajouter une photo</button>
 		</section>
 		<!--Modal to add images visible in login-->
-		<section class="modale-add hidden">
-			<div class="modale-add-icons">
-				<i class="modaleAdd-return-btn fa-solid fa-arrow-left"></i>
-				<i class="modaleAdd-close-btn fa-solid fa-xmark"></i>	
+		<section class="modal-add hidden">
+			<div class="modal-add-icons">
+				<i class="modalAdd-return-btn fa-solid fa-arrow-left"></i>
+				<i class="modalAdd-close-btn fa-solid fa-xmark"></i>	
 			</div>
 			<h3>Ajout photo</h3>
 			<div class="add-containers">
@@ -88,15 +88,15 @@
 				<div class="image-added"><!--Create in javascript--></div>
 				<label for="imageUpload" class="image-btn">+ Ajouter photo</label>
 				<input type="file" id="imageUpload" accept="image/*" name="image">
-				<p class="para-modale">jpg.png : 4mo max</p>
+				<p class="para-modal">jpg, png : 4mo max</p>
 			</div>
-			<form class="modale-add-form" action="#" method="post" enctype="multipart/form-data">
-				<label for="modale-add-title">Titre</label>
-				<input type="text" name="title" id="modale-add-title">
+			<form class="modal-add-form" action="#" method="post" enctype="multipart/form-data">
+				<label for="modal-add-title">Titre</label>
+				<input type="text" name="title" id="modal-add-title">
 				<label for="categorie-form">Catégories</label>
-				<select name="category" id="categorie-form"><!--Add javascrpt--></select>
-				<div class ="modale-border"></div>
-				<input class="modale-add-submit" type="submit" value="Valider">
+				<select name="category" id="categorie-form"><!--Add javascript--></select>
+				<div class ="modal-border"></div>
+				<input class="modal-add-submit" type="submit" value="Valider">
 			</form>
 		</section>
 	</main>

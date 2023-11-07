@@ -1,7 +1,8 @@
 const loginForm = document.querySelector('.login-form')
 
 loginForm.addEventListener('submit', function (e) {
-    e.preventDefault(); 
+    e.preventDefault();
+
     const email = document.querySelector('#email').value;
     const password = document.querySelector('#password').value;
     const data = {email: email, password: password};
@@ -23,9 +24,10 @@ loginForm.addEventListener('submit', function (e) {
             window.location.href = "index.html";
          
         } else {
-            alert("L'authentification a échoué. Vérifiez votre e-mail et votre mot de passe.")
+            alert("Adresse mail ou mot de passe incorrect.")
         }
     })
+
     .catch((error) => {
         console.error("Erreur: Aucune réponse de l'API (POST api/users/login)", error)
     })

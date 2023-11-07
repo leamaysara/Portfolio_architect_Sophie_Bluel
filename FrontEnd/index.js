@@ -20,7 +20,7 @@ fetch("http://localhost:5678/api/works")
     .then(reponse => reponse.json()) 
     .then(allWorks => {
         createGallery(allWorks);
-        createGalleryModale(allWorks);
+        createGalleryModal(allWorks);
     })
 
     .catch(error => console.error("Erreur: Aucune réponse de l'API (GET api/works)", error));
@@ -95,15 +95,15 @@ userLogout.addEventListener("click", () => {
 })
 
 editModeBtn.addEventListener("click", () => {
-    createGalleryModale();
+    createGalleryModal();
 })
 
 //Step 4 - Creating the modal for deleting images//
 
 //Importing images and icons into the modal//
-const modaleImg = document.querySelector(".modale-img")
+const modalImg = document.querySelector(".modal-img")
 
-function createGalleryModale(allWorks){
+function createGalleryModal(allWorks){
     allWorks.forEach(work => {
 
         const imageBox = document.createElement('figure');
@@ -115,13 +115,13 @@ function createGalleryModale(allWorks){
         iconeTrash.classList.add("fa-solid","fa-trash-can");
         iconeTrash.dataset.workId = work.id;
         imageBox.append(image, descriptionImg); 
-        modaleImg.appendChild(imageBox);
+        modalImg.appendChild(imageBox);
         descriptionImg.appendChild(iconeTrash);
         //Delete images in the gallery on button click//
         iconeTrash.addEventListener("click",()=>{
             imageBox.remove;
             deleteImg(work.id);
-            alert("Vous avez bien supprimer votre fichier !")
+            alert("Fichier bien supprimé.")
             window.location.href = 'index.html'; 
         })
     })   
@@ -171,7 +171,7 @@ const imageUpload = document.getElementById('imageUpload');
 const imageUploadBox = document.querySelector('.image-added');
 const imageIcon = document.querySelector('.icone-img')
 const btnForAddImage = document.querySelector(".image-btn")
-const modalePara = document.querySelector(".para-modale")
+const modalPara = document.querySelector(".para-modal")
 
 imageUpload.addEventListener('change', function () {
     if (this.files.length > 0) {
@@ -185,14 +185,14 @@ imageUpload.addEventListener('change', function () {
         imageUploadBox.appendChild(imageAdded);
         imageIcon.style.display="none";
         btnForAddImage.style.display= "none";
-        modalePara.style.display= "none";
+        modalPara.style.display= "none";
     }
 })
 
 //Modify the submit button of the form//
-const submitBtn = document.querySelector('.modale-add-submit');
+const submitBtn = document.querySelector('.modal-add-submit');
 const inputFile = document.querySelector("#imageUpload")
-const inputTitle = document.querySelector('#modale-add-title')
+const inputTitle = document.querySelector('#modal-add-title')
 
 function SubmitBtnColor() {
     if (inputFile.files[0] && inputTitle.value !== "") {
@@ -205,24 +205,25 @@ function SubmitBtnColor() {
 inputFile.addEventListener("input",SubmitBtnColor);
 inputTitle.addEventListener("input",SubmitBtnColor);
 //Send the data from our form//
-const modaleAddForm = document.querySelector('.modale-add-form');
-modaleAddForm.addEventListener('submit', async (e)=>{
+const modalAddForm = document.querySelector('.modal-add-form');
+modalAddForm.addEventListener('submit', async (e)=>{
     e.preventDefault();
 
-    const title = document.querySelector('#modale-add-title').value;
+    const title = document.querySelector('#modal-add-title').value;
     const category =  document.getElementById('categorie-form').value;      
     const imageFile = document.getElementById('imageUpload').files[0];
     //Convert our data into object//
     const AddNewProject = new FormData();
-    
+
     AddNewProject.append("title", title);
     AddNewProject.append("category", category);
     AddNewProject.append("image", imageFile);
+    
     //Check if the fields are empty//
     if (!title || !category || !imageFile){
-        alert("L'envoie de votre projet à échoué. Vérifiez votre titre et votre fichier")
+        alert("Échec de l'envoie du projet. Vérifiez l'image et le titre ")
       } else{
-        alert("Votre projet a bien été ajouté")
+        alert("Le projet a bien été ajouté.")
       }
     //Send to the API//
     fetch('http://localhost:5678/api/works', {
@@ -240,13 +241,13 @@ modaleAddForm.addEventListener('submit', async (e)=>{
 })
 
 //Handling modal opening/closing/return.//
-const closeModaleBtn = document.querySelector(".modale-close-btn")
-const ModaleForDelete =document.querySelector(".modale-delete")
-const BtnCloseModaleAdd = document.querySelector(".modaleAdd-close-btn") 
-const ModaleForAdd = document.querySelector(".modale-add") 
+const closeModalBtn = document.querySelector(".modal-close-btn")
+const ModalForDelete =document.querySelector(".modal-delete")
+const BtnCloseModalAdd = document.querySelector(".modalAdd-close-btn") 
+const ModalForAdd = document.querySelector(".modal-add") 
 const background = document.querySelector(".background")
-const BtnReturn = document.querySelector(".modaleAdd-return-btn") 
-const BtnOpenModaleAdd = document.querySelector(".modale-add-btn") 
+const BtnReturn = document.querySelector(".modalAdd-return-btn") 
+const BtnOpenModalAdd = document.querySelector(".modal-add-btn") 
 
 
 function clearImageBox() {
@@ -254,33 +255,33 @@ function clearImageBox() {
     imageUploadBox.innerHTML = ''; 
     imageIcon.style.display = "block"; 
     btnForAddImage.style.display = "block";
-    modalePara.style.display = "block"; 
+    modalPara.style.display = "block"; 
 }
 
-function ClosingModale(){
-    ModaleForDelete.style.display= "none";
-    ModaleForAdd.style.display = "none";
+function ClosingModal(){
+    ModalForDelete.style.display= "none";
+    ModalForAdd.style.display = "none";
     background.style.display = "none";
     clearImageBox();
 }
 
-function OpenModale(){
-    ModaleForDelete.style.display= "block";
+function OpenModal(){
+    ModalForDelete.style.display= "block";
     background.style.display = "block";
 }
 
-closeModaleBtn.addEventListener('click', ClosingModale)
-BtnCloseModaleAdd.addEventListener('click',ClosingModale) 
-background.addEventListener('click',ClosingModale)
-editModeBtn.addEventListener('click', OpenModale)
+closeModalBtn.addEventListener('click', ClosingModal)
+BtnCloseModalAdd.addEventListener('click',ClosingModal) 
+background.addEventListener('click',ClosingModal)
+editModeBtn.addEventListener('click', OpenModal)
 
-BtnOpenModaleAdd.addEventListener('click',() => {
-    ClosingModale()
-    ModaleForAdd.style.display = "block";
+BtnOpenModalAdd.addEventListener('click',() => {
+    ClosingModal()
+    ModalForAdd.style.display = "block";
     background.style.display = "block";
 }) 
 
 BtnReturn.addEventListener('click',() => {
-    ClosingModale()
-    OpenModale() 
+    ClosingModal()
+    OpenModal() 
 })
