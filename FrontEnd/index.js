@@ -1,287 +1,247 @@
 //Step 1 - Fetch data from works//
-const gallery = document.querySelector(".gallery")
+let works = [];
+let currentCategory = "Tous";
 
-function createGallery(allWorks){
-    allWorks.forEach(work => {
+const allButton = document.getElementById("all");
+const objetsButton = document.querySelector(".btn.objet");
+const appartementsButton = document.getElementById("Appartements");
+const hrButton = document.getElementById("H&r");
+const gallery = document.querySelector(".gallery");
+const form = document.querySelector(".form-login");
+const modifierMod = document.querySelector(".modification");
+const backMod = document.querySelector(".modal-back");
+const xMark = document.querySelectorAll(".fa-xmark");
+const imageModal = document.getElementById("file");
+const titreModal = document.getElementById("title-modal");
+const categorieModal = document.getElementById("categorie-modal");
+const displayModal = document.querySelector(".display-works-modal");
 
-        const imageBox = document.createElement('figure');
-        const image = document.createElement('img');
-        const descriptionImg = document.createElement('figcaption');
+//Async function to fetch data from an API endpoint
+async function fetcher() {
+  await fetch(`http://localhost:5678/api/works`)
+    .then((res) => res.json())
+    .then((data) => (works = data));
 
-        image.src = work.imageUrl;
-        image.alt = work.title;
-        descriptionImg.textContent = work.title;
-        imageBox.append(image, descriptionImg); 
-        gallery.appendChild(imageBox);
-    })
+  filterWorksByCategory(currentCategory);
+  galeriesDisplayModal(works);
 }
 
-fetch("http://localhost:5678/api/works")
-    .then(reponse => reponse.json()) 
-    .then(allWorks => {
-        createGallery(allWorks);
-        createGalleryModal(allWorks);
-    })
-
-    .catch(error => console.error("Erreur: Aucune réponse de l'API (GET api/works)", error));
-
+//Function to display works in the gallery
+function galeriesDisplay(filteredWorks) {
+  gallery.innerHTML = filteredWorks
+    .map(
+      (work) =>
+        `
+        <figure id=${work.id}>
+          <img src=${work.imageUrl}>
+          <figcaption>${work.title}</figcaption>
+        </figure>
+      `
+    )
+    .join("");
+}
 
 //Step 2 - Create filters by category//
-const filterGallery = document.querySelector(".filter-gallery")
-
-function createFilterBtn(allCategories){
-    allCategories.forEach(category => {
-
-        const filterBtn = document.createElement('button');
-
-        filterBtn.innerText= category.name;
-        filterGallery.appendChild(filterBtn);
-        //Upon clicking buttons, it calls the function//
-        filterBtn.addEventListener("click", () => {
-            createFilterImg(category.name)
-        })
-    })  
+function filterWorksByCategory(category) {
+  const filteredWorks =
+    category === "Tous"
+      ? works
+      : works.filter((work) => work.category.name === category);
+  //console.log(filteredWorks);
+  galeriesDisplay(filteredWorks);
+  //Update current category
+  currentCategory = category;
 }
 
-function createFilterImg(categoryName) {
+//Event listeners for different category filter buttons
+allButton.addEventListener("click", () => {
+  filterWorksByCategory("Tous");
+});
 
-    fetch("http://localhost:5678/api/works")
-        .then(reponse => reponse.json()) 
-        .then(allWorks => { 
+objetsButton.addEventListener("click", () => {
+  filterWorksByCategory("Objets");
+});
 
-            const onlyFilterImg = allWorks.filter(work => work.category.name === categoryName);
+appartementsButton.addEventListener("click", () => {
+  filterWorksByCategory("Appartements");
+});
 
-            gallery.innerHTML = "";
-            createGallery(onlyFilterImg);
+hrButton.addEventListener("click", () => {
+  filterWorksByCategory("Hotels & restaurants");
+});
 
-            //We create a function for our 'TOUS' button that will display the entire gallery.//
-            const btnForAllwork = document.querySelector(".tous-btn")
-            btnForAllwork.addEventListener("click", () => {
-                gallery.innerHTML = "";
-                createGallery(allWorks) 
-            })
+// Step 3 - Modal : Administrator interface creation//
 
-        .catch(error => console.error("Erreur: Aucune réponse de l'API (GET api/works) lors de la création de la galerie filtré par categorie", error));       
-    })           
-}  
-  
-fetch("http://localhost:5678/api/categories")
+// Event listener for displaying the modal on clicking 'modifierMod'
+modifierMod.addEventListener("click", () => {
+  // Show the modal by setting its display property to 'block'
+  document.getElementById("modal").style.display = "block";
+});
 
-    .then(reponse => reponse.json()) 
-    .then(allCategories => { 
-        createFilterBtn(allCategories)
-    }) 
+// Event listener for hiding the modal on clicking 'backMod'
+backMod.addEventListener("click", () => {
+  // Hide the modal by setting its display property to 'none'
+  document.getElementById("modal").style.display = "none";
+});
 
-    .catch(error => console.error("Erreur: Aucune réponse de l'API (GET api/categories)", error));
+// Loop through each 'xMark' element and add an event listener to hide the modal on click
+xMark.forEach((mark) =>
+  mark.addEventListener("click", () => {
+    // Hide the modal by setting its display property to 'none'
+    document.getElementById("modal").style.display = "none";
+  })
+);
 
+// Select various elements related to different modals
+const modalAdding = document.querySelector(".modal-adding");
+const modalDelete = document.querySelector(".modal-delete");
+const addImages = document.querySelector(".add-images");
+const arrowLeft = document.querySelector(".back-modal");
 
-//Step 3 - Administrator interface creation//
-const userToken =localStorage.getItem("token")
-const editModeBanner = document.querySelector(".admin-banner")
-const editModeBtn = document.querySelector(".admin-btn-modifier")
-const userLogin = document.querySelector(".admin-login")
-const userLogout = document.querySelector(".admin-logout")
+// Event listener to display the 'modalAdding' and hide the 'modalDelete' on clicking 'addImages'
+addImages.addEventListener("click", () => {
+  // Show the 'modalAdding'
+  modalAdding.style.display = "block";
+  // Hide the 'modalDelete'
+  modalDelete.style.display = "none";
+});
 
-if(userToken !== null){
-    editModeBanner.style.display = "block";
-    editModeBtn .style.display = "inline-block";
-    userLogin.style.display = "none";
-    userLogout.style.display = "block";
-}
+// Event listener to hide the 'modalAdding' and display the 'modalDelete' on clicking 'arrowLeft'
+arrowLeft.addEventListener("click", () => {
+  // Hide the 'modalAdding'
+  modalAdding.style.display = "none";
+  // Show the 'modalDelete'
+  modalDelete.style.display = "block";
+});
 
-//Close admin mode//
-userLogout.addEventListener("click", () => {
-    localStorage.clear(); 
-})
+// Step 4 - Creation of the modal to add images//
 
-editModeBtn.addEventListener("click", () => {
-    createGalleryModal();
-})
+// DOM elements selection related to the modal for adding images
+const selectedImage = document.getElementById("selected-image");
+const imgChoose = document.querySelector(".before-selected");
+const SelecImage = document.querySelector(".after-selected");
+const myForm = document.getElementById("submit-modal");
+const errorModalForm = document.querySelector(".error-form-modal");
 
-//Step 4 - Creating the modal for deleting images//
+// Event listener triggered when the 'imageModal' input changes
+imageModal.addEventListener("change", function (event) {
+  const file = event.target.files[0];
+  if (file) {
+    //Display the selected image
+    selectedImage.src = URL.createObjectURL(file);
+    imgChoose.style.display = "none";
+    selectedImage.style.display = "block";
+  } else {
+    //Reset the selected image
+    selectedImage.src = "";
+  }
+});
 
-//Importing images and icons into the modal//
-const modalImg = document.querySelector(".modal-img")
+// Event listener triggered when the 'myForm' is submitted
+myForm.addEventListener("submit", async (event) => {
+  // Prevent the default form submission behavior
+  event.preventDefault();
+  // Retrieve the selected file from 'imageModal'
+  const file = imageModal.files[0];
 
-function createGalleryModal(allWorks){
-    allWorks.forEach(work => {
+  if (file) {
+    //If a file is selected, create form data with necessary details
+    const formData = new FormData();
+    formData.append("image", file);
+    formData.append("title", `${titreModal.value}`);
+    formData.append("category", `${categorieModal.value}`);
 
-        const imageBox = document.createElement('figure');
-        const image = document.createElement('img');
-        const descriptionImg = document.createElement('figcaption');
-        const iconeTrash = document.createElement('i');
+    //Prepare options for the POST request
+    const requestOptions = {
+      method: "POST",
+      body: formData,
+      headers: {
+        accept: "application/json",
+        Authorization: `Bearer ${localStorage.getItem("token de connexion")}`,
+      },
+    };
 
-        image.src = work.imageUrl;
-        iconeTrash.classList.add("fa-solid","fa-trash-can");
-        iconeTrash.dataset.workId = work.id;
-        imageBox.append(image, descriptionImg); 
-        modalImg.appendChild(imageBox);
-        descriptionImg.appendChild(iconeTrash);
-        //Delete images in the gallery on button click//
-        iconeTrash.addEventListener("click",()=>{
-            imageBox.remove;
-            deleteImg(work.id);
-            alert("Fichier bien supprimé.")
-            window.location.href = 'index.html'; 
-        })
-    })   
-}
+    //Send a POST request to upload the image
+    await fetch("http://localhost:5678/api/works", requestOptions)
+      .then((response) => response.json())
+      .then((data) => {
+        console.log(data); //Log the response data
+        errorModalForm.style.display = "none"; //Hide any error message
+      })
+      .catch((error) => {
+        console.error("Error sending the request:", error); //Log any errors during the request
+      });
+  } else {
+    console.error("No file selected."); //Log an error if no file is selected
+    errorModalForm.style.display = "block"; //Display an error message in the modal
+  }
 
-//Delete images//
-function deleteImg(workId){
+  fetcher(); //Fetch new data after adding the image
+  selectedImage.src = ""; //Reset the selected image
+  imgChoose.style.display = "flex"; //Show the 'imgChoose' element
+  selectedImage.style.display = "none"; //Hide the selected image element
+  titreModal.value = ""; //Reset the title input field
+});
 
-    fetch(`http://localhost:5678/api/works/${workId}`, {
-        method: 'DELETE',
+//Step 5 - Creating the modal for deleting images//
+function galeriesDisplayModal(worksModal) {
+  //Display works in the gallery by creating HTML elements dynamically
+  displayModal.innerHTML = worksModal
+    .map(
+      (work) =>
+        `
+        <figure class="works">
+          <i id=${work.id} class="fa-solid fa-trash-can"></i>
+          <img src=${work.imageUrl} class="imgtest">
+        </figure>
+        `
+    )
+    .join(""); //Convert the mapped elements to a single string of HTML content
+
+  const trashCan = document.querySelectorAll(".fa-trash-can");
+
+  trashCan.forEach(function (trash) {
+    //Add a click event listener to each trash can icon
+    trash.addEventListener("click", async function (event) {
+      event.preventDefault();
+      const elementId = event.currentTarget.id;
+
+      //Set up DELETE request options with authorization header
+      const requestOptionsDelete = {
+        method: "DELETE",
         headers: {
-            'Accept': 'application/json',
-            'Authorization': `Bearer ${userToken}` 
+          Authorization: `Bearer ${localStorage.getItem("token de connexion")}`,
         },
-    })
+      };
 
-    .then(response => response.ok)
+      //Send a DELETE request to remove the selected work by its ID
+      await fetch(
+        `http://localhost:5678/api/works/${elementId}`,
+        requestOptionsDelete
+      );
 
-    .catch(error => console.error("Erreur: Aucune réponse de l'API (POST api/works/ID) lors de la supression de nos images", error));  
+      //Refresh the works after deletion
+      fetcher();
+    });
+  });
 }
 
-//Step 5 - Creation of the modal to add images//
+//Login-side management of the site
+const modifieBtn = document.querySelector(".modification");
+const tri = document.querySelector(".tri");
+const editVersion = document.querySelector(".edit-mod");
+const loginOut = document.querySelector(".login-logout");
 
-//Form creation//
-const selectForm = document.getElementById("categorie-form")
-function createFormGategorie(allCategories){
-    allCategories.forEach(category => {
+const connected = localStorage.getItem("token de connexion") ? true : false;
 
-        const optionGategorie = document.createElement('option');
-        optionGategorie.innerText= category.name;
-        optionGategorie.value = category.id;
-        selectForm.appendChild(optionGategorie);    
-    });  
+//Update the UI based on the user's login status
+if (connected) {
+  modifieBtn.style.display = "flex";
+  tri.style.display = "none";
+  editVersion.style.display = "flex";
+  //Change the text to "logout"
+  loginOut.innerText = "logout";
 }
 
-fetch("http://localhost:5678/api/categories")
-
-    .then(reponse => reponse.json()) 
-    .then(Allcategory => { 
-        createFormGategorie(Allcategory);
-    }) 
-
-    .catch(error => console.error("Erreur: Aucune réponse de l'API (GET api/categories)", error));
-
-//Get the user's image to display//
-const imageUpload = document.getElementById('imageUpload');
-const imageUploadBox = document.querySelector('.image-added');
-const imageIcon = document.querySelector('.icone-img')
-const btnForAddImage = document.querySelector(".image-btn")
-const modalPara = document.querySelector(".para-modal")
-
-imageUpload.addEventListener('change', function () {
-    if (this.files.length > 0) {
-
-        const selectedFile = this.files[0];
-        const imageUrL = URL.createObjectURL(selectedFile);
-        const imageAdded = document.createElement('img');
-
-        imageAdded.src = imageUrL;
-        imageUploadBox.innerHTML = '';
-        imageUploadBox.appendChild(imageAdded);
-        imageIcon.style.display="none";
-        btnForAddImage.style.display= "none";
-        modalPara.style.display= "none";
-    }
-})
-
-//Modify the submit button of the form//
-const submitBtn = document.querySelector('.modal-add-submit');
-const inputFile = document.querySelector("#imageUpload")
-const inputTitle = document.querySelector('#modal-add-title')
-
-function SubmitBtnColor() {
-    if (inputFile.files[0] && inputTitle.value !== "") {
-        submitBtn.style.background="#1D6154"
-    }else{
-        submitBtn.style.background=""
-    }
-}
-
-inputFile.addEventListener("input",SubmitBtnColor);
-inputTitle.addEventListener("input",SubmitBtnColor);
-//Send the data from our form//
-const modalAddForm = document.querySelector('.modal-add-form');
-modalAddForm.addEventListener('submit', async (e)=>{
-    e.preventDefault();
-
-    const title = document.querySelector('#modal-add-title').value;
-    const category =  document.getElementById('categorie-form').value;      
-    const imageFile = document.getElementById('imageUpload').files[0];
-    //Convert our data into object//
-    const AddNewProject = new FormData();
-
-    AddNewProject.append("title", title);
-    AddNewProject.append("category", category);
-    AddNewProject.append("image", imageFile);
-    
-    //Check if the fields are empty//
-    if (!title || !category || !imageFile){
-        alert("Échec de l'envoie du projet. Vérifiez l'image et le titre ")
-      } else{
-        alert("Le projet a bien été ajouté.")
-      }
-    //Send to the API//
-    fetch('http://localhost:5678/api/works', {
-        method:"POST",    
-        headers:{ 
-            'Authorization':`Bearer ${userToken}` 
-        },
-        body:AddNewProject ,
-    })
-    .then((response) => {
-        window.location.href = 'index.html';
-        return response.json();
-    })
-    .catch(error => console.error("Erreur: Aucune réponse de l'API (POST api/work)", error));
-})
-
-//Handling modal opening/closing/return.//
-const closeModalBtn = document.querySelector(".modal-close-btn")
-const ModalForDelete =document.querySelector(".modal-delete")
-const BtnCloseModalAdd = document.querySelector(".modalAdd-close-btn") 
-const ModalForAdd = document.querySelector(".modal-add") 
-const background = document.querySelector(".background")
-const BtnReturn = document.querySelector(".modalAdd-return-btn") 
-const BtnOpenModalAdd = document.querySelector(".modal-add-btn") 
-
-
-function clearImageBox() {
-    imageUpload.value = ''; 
-    imageUploadBox.innerHTML = ''; 
-    imageIcon.style.display = "block"; 
-    btnForAddImage.style.display = "block";
-    modalPara.style.display = "block"; 
-}
-
-function ClosingModal(){
-    ModalForDelete.style.display= "none";
-    ModalForAdd.style.display = "none";
-    background.style.display = "none";
-    clearImageBox();
-}
-
-function OpenModal(){
-    ModalForDelete.style.display= "block";
-    background.style.display = "block";
-}
-
-closeModalBtn.addEventListener('click', ClosingModal)
-BtnCloseModalAdd.addEventListener('click',ClosingModal) 
-background.addEventListener('click',ClosingModal)
-editModeBtn.addEventListener('click', OpenModal)
-
-BtnOpenModalAdd.addEventListener('click',() => {
-    ClosingModal()
-    ModalForAdd.style.display = "block";
-    background.style.display = "block";
-}) 
-
-BtnReturn.addEventListener('click',() => {
-    ClosingModal()
-    OpenModal() 
-})
+//Trigger the fetcher function when the window is loaded
+window.addEventListener("load", fetcher);
