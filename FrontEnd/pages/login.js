@@ -37,7 +37,7 @@ form.addEventListener("submit", async (event) => {
     if (response.status === 200) {
       // If the login is successful (status code 200), extract the JSON data
       const userData = await response.json();
-      localStorage.setItem("token de connexion", userData.token); // Store the token in local storage
+      localStorage.setItem("token", userData.token); // Store the token in local storage
       document.location.href = "../index.html"; // Redirect to the index.html page
     } else {
       // If the login fails, throw an error

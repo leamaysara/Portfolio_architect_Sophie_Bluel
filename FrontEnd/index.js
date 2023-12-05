@@ -89,6 +89,8 @@ xMark.forEach((mark) =>
   mark.addEventListener("click", () => {
     // Hide the modal by setting its display property to 'none'
     document.getElementById("modal").style.display = "none";
+    errorModalForm.style.display = "none";
+    successModalForm.style.display = "none";
   })
 );
 
@@ -108,10 +110,10 @@ addImages.addEventListener("click", () => {
 
 // Event listener to hide the 'modalAdding' and display the 'modalDelete' on clicking 'arrowLeft'
 arrowLeft.addEventListener("click", () => {
-  // Hide the 'modalAdding'
   modalAdding.style.display = "none";
-  // Show the 'modalDelete'
   modalDelete.style.display = "block";
+  errorModalForm.style.display = "none";
+  successModalForm.style.display = "none";
 });
 
 // Step 4 - Creation of the modal to add images//
@@ -122,15 +124,25 @@ const imgChoose = document.querySelector(".before-selected");
 const SelecImage = document.querySelector(".after-selected");
 const myForm = document.getElementById("submit-modal");
 const errorModalForm = document.querySelector(".error-form-modal");
+const successModalForm = document.querySelector(".success-form-modal");
+
+function updateGallery(workToAdd) {
+  if (workToAdd) {
+    works.push(workToAdd); // Add a new work to all works
+  }
+}
 
 // Event listener triggered when the 'imageModal' input changes
 imageModal.addEventListener("change", function (event) {
+
   const file = event.target.files[0];
+
   if (file) {
     //Display the selected image
     selectedImage.src = URL.createObjectURL(file);
     imgChoose.style.display = "none";
     selectedImage.style.display = "block";
+
   } else {
     //Reset the selected image
     selectedImage.src = "";
@@ -139,14 +151,17 @@ imageModal.addEventListener("change", function (event) {
 
 // Event listener triggered when the 'myForm' is submitted
 myForm.addEventListener("submit", async (event) => {
+
   // Prevent the default form submission behavior
   event.preventDefault();
+
   // Retrieve the selected file from 'imageModal'
   const file = imageModal.files[0];
 
-  if (file) {
+  if (file && titreModal.value && categorieModal.value) {
     //If a file is selected, create form data with necessary details
     const formData = new FormData();
+
     formData.append("image", file);
     formData.append("title", `${titreModal.value}`);
     formData.append("category", `${categorieModal.value}`);
@@ -157,30 +172,54 @@ myForm.addEventListener("submit", async (event) => {
       body: formData,
       headers: {
         accept: "application/json",
-        Authorization: `Bearer ${localStorage.getItem("token de connexion")}`,
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
       },
     };
 
     //Send a POST request to upload the image
-    await fetch("http://localhost:5678/api/works", requestOptions)
-      .then((response) => response.json())
-      .then((data) => {
-        console.log(data); //Log the response data
-        errorModalForm.style.display = "none"; //Hide any error message
-      })
-      .catch((error) => {
-        console.error("Error sending the request:", error); //Log any errors during the request
-      });
-  } else {
-    console.error("No file selected."); //Log an error if no file is selected
-    errorModalForm.style.display = "block"; //Display an error message in the modal
-  }
+    fetch("http://localhost:5678/api/works", requestOptions)
+    .then(response => {
+      switch (response.status) {
+        case 201:
+          // Successful creation
+          console.log('The project has been successfully added to the gallery.');
+          successModalForm.style.display = "block";
+          return response.json();
+        case 400:
+          // Bad request
+          console.error('A field is missing');
+          throw new Error('A field is missing');
+        default:
+          // Handle other status codes if necessary
+          console.error('Unhandled status code:', response.status);
+          throw new Error('Unhandled status code: ' + response.status);
+      }
+    })
+    .then(data => {
+      console.log(data);
+      updateGallery(data); // Add the newly created work
+      errorModalForm.style.display = "none"; // Hide any error message
+    })
+    .catch(error => {
+      console.error("Error sending the request:", error); // Log any errors during the request
+      errorModalForm.style.display = "block";
+    });
+  
 
-  fetcher(); //Fetch new data after adding the image
-  selectedImage.src = ""; //Reset the selected image
-  imgChoose.style.display = "flex"; //Show the 'imgChoose' element
-  selectedImage.style.display = "none"; //Hide the selected image element
-  titreModal.value = ""; //Reset the title input field
+    // Reset the file input field after form submission
+    imageModal.value = null;
+
+    fetcher(); // Fetch new data after adding the image
+    selectedImage.src = ""; // Reset the selected image
+    imgChoose.style.display = "flex"; // Show the 'imgChoose' element
+    selectedImage.style.display = "none"; // Hide the selected image element
+    titreModal.value = ""; // Reset the title input field
+
+  } else {
+    console.error("No file selected."); // Log an error if no file is selected
+    errorModalForm.style.display = "block";
+    successModalForm.style.display = "none";
+  }
 });
 
 //Step 5 - Creating the modal for deleting images//
@@ -210,7 +249,7 @@ function galeriesDisplayModal(worksModal) {
       const requestOptionsDelete = {
         method: "DELETE",
         headers: {
-          Authorization: `Bearer ${localStorage.getItem("token de connexion")}`,
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
       };
 
@@ -230,18 +269,31 @@ function galeriesDisplayModal(worksModal) {
 const modifieBtn = document.querySelector(".modification");
 const tri = document.querySelector(".tri");
 const editVersion = document.querySelector(".edit-mod");
-const loginOut = document.querySelector(".login-logout");
+const login = document.getElementById("login");
+const logout = document.getElementById("logout");
 
-const connected = localStorage.getItem("token de connexion") ? true : false;
+const connected = localStorage.getItem("token") ? true : false;
 
 //Update the UI based on the user's login status
 if (connected) {
+  logout.style.display = "inline";
+  login.style.display = "none";
+
   modifieBtn.style.display = "flex";
   tri.style.display = "none";
   editVersion.style.display = "flex";
-  //Change the text to "logout"
-  loginOut.innerText = "logout";
 }
 
 //Trigger the fetcher function when the window is loaded
 window.addEventListener("load", fetcher);
+
+logout.addEventListener("click", async (event) => {
+  logout.style.display = "none";
+  login.style.display = "inline";
+
+  modifieBtn.style.display = "none";
+  tri.style.display = "flex";
+  editVersion.style.display = "none";
+
+  localStorage.removeItem("token");
+})

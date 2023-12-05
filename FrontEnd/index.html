@@ -50,7 +50,8 @@
           </div>
           <h2>Ajout photo</h2>
           <form action="" id="submit-modal" class="form-modal" method="post">
-            <span class="error-form-modal">Échec de l'importation. Vérifiez l'image et le titre.</span>
+            <span class="error-form-modal">Veuillez vérifier les champs du formulaire.</span>
+            <span class="success-form-modal">Le projet a bien été ajouté.</span>
             <div class="add-image">
               <label for="file" class="label-file">
                 <div class="before-selected">
@@ -99,8 +100,11 @@
           <li><a href="#">projets</a></li>
           <li><a href="#">contact</a></li>
           <li>
-            <a href="../FrontEnd/pages/login.html" class="login-logout"
+            <a href="../FrontEnd/pages/login.html" id="login"
               >login</a
+            >
+            <a href="#" id="logout"
+            >logout</a
             >
           </li>
           <li><img src="./assets/icons/instagram.png" alt="Instagram" /></li>
