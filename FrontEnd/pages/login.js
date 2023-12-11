@@ -31,20 +31,24 @@ form.addEventListener("submit", async (event) => {
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify(data), // Sending user data in JSON format
+      // Sending user data in JSON format
+      body: JSON.stringify(data),
     });
 
     if (response.status === 200) {
       // If the login is successful (status code 200), extract the JSON data
       const userData = await response.json();
-      localStorage.setItem("token", userData.token); // Store the token in local storage
-      document.location.href = "../index.html"; // Redirect to the index.html page
+      // Store the token in local storage
+      localStorage.setItem("token", userData.token);
+      // Redirect to the index.html page
+      document.location.href = "../index.html";
     } else {
       // If the login fails, throw an error
       throw new Error("Wrong password!");
     }
   } catch (error) {
     console.error(error);
-    spanWrongCredentials.style.display = "block"; // Display an error message for wrong credentials
+    // Display an error message for wrong credentials
+    spanWrongCredentials.style.display = "block";
   }
 });

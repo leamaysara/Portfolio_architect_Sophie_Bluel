@@ -1,7 +1,9 @@
-//Step 1 - Fetch data from works//
+// VARIABLES
 let works = [];
 let currentCategory = "Tous";
 
+// CONSTS
+const connected = localStorage.getItem("token") ? true : false;
 const allButton = document.getElementById("all");
 const objetsButton = document.querySelector(".btn.objet");
 const appartementsButton = document.getElementById("Appartements");
@@ -31,43 +33,27 @@ const editVersion = document.querySelector(".edit-mod");
 const login = document.getElementById("login");
 const logout = document.getElementById("logout");
 
-// Async function to fetch data from an API endpoint
-async function fetcher() {
-  await fetch(`http://localhost:5678/api/works`)
-    .then((res) => res.json())
-    .then((data) => (works = data));
+// INITIALIZATION
+window.addEventListener("load", fetcher());
 
-  filterWorksByCategory(currentCategory);
-  galeriesDisplayModal(works);
+if (connected) {
+  logout.style.display = "inline";
+  login.style.display = "none";
+  modifieBtn.style.display = "flex";
+  tri.style.display = "none";
+  editVersion.style.display = "flex";
 }
 
-// Function to display works in the gallery
-function galeriesDisplay(filteredWorks) {
-  gallery.innerHTML = filteredWorks
-    .map(
-      (work) =>
-        `
-        <figure id=${work.id}>
-          <img src=${work.imageUrl}>
-          <figcaption>${work.title}</figcaption>
-        </figure>
-      `
-    )
-    .join("");
-}
+// EVENT LISTENERS
+logout.addEventListener("click", async (event) => {
+  logout.style.display = "none";
+  login.style.display = "inline";
+  modifieBtn.style.display = "none";
+  tri.style.display = "flex";
+  editVersion.style.display = "none";
+  localStorage.removeItem("token");
+})
 
-// Step 2 - Create filters by category//
-function filterWorksByCategory(category) {
-  const filteredWorks =
-    category === "Tous"
-      ? works
-      : works.filter((work) => work.category.name === category);
-  
-  galeriesDisplay(filteredWorks);
-  currentCategory = category;
-}
-
-// Event listeners for different category filter buttons
 allButton.addEventListener("click", () => {
   filterWorksByCategory("Tous");
 });
@@ -84,7 +70,7 @@ hrButton.addEventListener("click", () => {
   filterWorksByCategory("Hotels & restaurants");
 });
 
-// Step 3 - Modal: Administrator interface creation//
+// Administrator interface creation
 modifierMod.addEventListener("click", () => {
   document.getElementById("modal").style.display = "block";
 });
@@ -115,7 +101,7 @@ arrowLeft.addEventListener("click", () => {
   successModalForm.style.display = "none";
 });
 
-// Step 4 - Creation of the modal to add images//
+// Creation of the modal to add images//
 imageModal.addEventListener("change", function (event) {
   const file = event.target.files[0];
   if (file) {
@@ -170,7 +156,6 @@ myForm.addEventListener("submit", async (event) => {
     });
 
     imageModal.value = null;
-    fetcher();
     selectedImage.src = "";
     imgChoose.style.display = "flex";
     selectedImage.style.display = "none";
@@ -183,13 +168,52 @@ myForm.addEventListener("submit", async (event) => {
   }
 });
 
+// FUNCTIONS
+async function fetcher() {
+  await fetch(`http://localhost:5678/api/works`)
+    .then((res) => res.json())
+    .then((data) => (works = data));
+
+  filterWorksByCategory(currentCategory);
+  galeriesDisplayModal(works);
+}
+
+// Function to display works in the gallery
+function galeriesDisplay(filteredWorks) {
+  gallery.innerHTML = filteredWorks
+    .map(
+      (work) =>
+        `
+        <figure id=${work.id}>
+          <img src=${work.imageUrl}>
+          <figcaption>${work.title}</figcaption>
+        </figure>
+      `
+    )
+    .join("");
+}
+
+// Create filters by category//
+function filterWorksByCategory(category) {
+  const filteredWorks =
+    category === "Tous"
+      ? works
+      : works.filter((work) => work.category.name === category);
+  
+  galeriesDisplay(filteredWorks);
+  currentCategory = category;
+}
+
+
 function updateGallery(workToAdd) {
   if (workToAdd) {
     works.push(workToAdd);
+    galeriesDisplayModal(works);
+    galeriesDisplay(works);
   }
 }
 
-// Step 5 - Creating the modal for deleting images//
+// Creating the modal for deleting images//
 function galeriesDisplayModal(worksModal) {
   displayModal.innerHTML = worksModal
     .map(
@@ -221,28 +245,10 @@ function galeriesDisplayModal(worksModal) {
       );
 
       fetcher();
+      // sinon: then
+      // récupérer le work qui vient d'être supprimé
+      // l'enlever du tableau works
+      // update la gallerie et la modal
     });
   });
 }
-
-// Login-side management of the site
-const connected = localStorage.getItem("token") ? true : false;
-
-if (connected) {
-  logout.style.display = "inline";
-  login.style.display = "none";
-  modifieBtn.style.display = "flex";
-  tri.style.display = "none";
-  editVersion.style.display = "flex";
-}
-
-window.addEventListener("load", fetcher);
-
-logout.addEventListener("click", async (event) => {
-  logout.style.display = "none";
-  login.style.display = "inline";
-  modifieBtn.style.display = "none";
-  tri.style.display = "flex";
-  editVersion.style.display = "none";
-  localStorage.removeItem("token");
-})
